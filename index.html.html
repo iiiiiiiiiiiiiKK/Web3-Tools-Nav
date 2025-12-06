@@ -1,0 +1,638 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelNav Station</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script id="nav-data" type="application/json">
+{
+    "config": {
+        "windowTitle": "PixelNav Station",
+        "menus": [
+            "首页|/",
+            "关于|https://github.com",
+            "HODL"
+        ],
+        "searchPlaceholder": "Search dApps...",
+        "statusPrefix": "系统已运行",
+        "startTime": "2023-01-01T00:00:00.000Z"
+    },
+    "groups": [
+        {
+            "id": "g-web3",
+            "name": "Web3常用",
+            "subs": [
+                {
+                    "id": "s-tools",
+                    "name": "基础工具",
+                    "links": []
+                }
+            ]
+        },
+        {
+            "id": "g-1764994079003",
+            "name": "交易平台",
+            "subs": []
+        },
+        {
+            "id": "g-1764994098239",
+            "name": "行情数据",
+            "subs": []
+        },
+        {
+            "id": "g-1764994137818",
+            "name": "BRC-20",
+            "subs": []
+        },
+        {
+            "id": "g-1764994161344",
+            "name": "Web3钱包",
+            "subs": []
+        },
+        {
+            "id": "g-1764994177974",
+            "name": "区块浏览器",
+            "subs": []
+        },
+        {
+            "id": "g-1764994197967",
+            "name": "跨链桥",
+            "subs": []
+        },
+        {
+            "id": "g-1764994328290",
+            "name": "Ai工具",
+            "subs": []
+        }
+    ]
+}
+</script>
+
+    <style>
+        :root { --bg-teal: #008080; --win-gray: #c0c0c0; --win-blue: #000080; }
+        body { background-color: var(--bg-teal); font-family: 'Tahoma', 'Microsoft YaHei', sans-serif; font-size: 12px; overflow: hidden; user-select: none; cursor: default; }
+
+        .win-window { background: var(--win-gray); box-shadow: 1px 1px 0 #000; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #000; border-bottom: 2px solid #000; }
+        .win-inset { background: #fff; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #dfdfdf; border-bottom: 1px solid #dfdfdf; }
+        .win-titlebar { background: linear-gradient(90deg, var(--win-blue), #1084d0); color: white; padding: 3px 6px; display: flex; align-items: center; justify-content: space-between; font-weight: bold; }
+        
+        .win-btn { background: var(--win-gray); border: 1px solid #808080; border-top-color: #fff; border-left-color: #fff; border-right-color: #000; border-bottom-color: #000; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: black; box-shadow: 1px 1px 0 #000; }
+        .win-btn:active:not(:disabled) { border-top-color: #000; border-left-color: #000; border-right-color: #fff; border-bottom-color: #fff; transform: translate(1px, 1px); box-shadow: none; }
+        
+        .sidebar-root { padding: 8px 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #333; position: relative; }
+        .sidebar-root:hover { background-color: #e0e0e0; }
+        .sidebar-sub { padding: 6px 4px 6px 24px; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px dotted transparent; position: relative; }
+        .sidebar-sub:hover { border-color: #808080; }
+        .sidebar-sub.active { background-color: var(--win-blue); color: white; border-color: white; }
+        .sidebar-sub.active .icon-svg { stroke: white; }
+        
+        /* 按钮组显隐 */
+        .sidebar-root .group-btns, .sidebar-sub .sub-btns { display: none; }
+        .sidebar-root:hover .group-btns, .sidebar-sub:hover .sub-btns { display: flex; }
+
+        .grid-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid transparent; transition: background 0.1s; }
+        .grid-item:hover { background-color: #efefef; border: 1px dotted #808080; }
+        
+        /* 关键层级：链接底层(1)，按钮顶层(50) */
+        .card-link { position: absolute; inset: 0; z-index: 1; }
+        .action-layer { position: absolute; top: 4px; right: 4px; z-index: 50; display: none; gap: 4px; }
+        .grid-item:hover .action-layer { display: flex; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
+        .shake-anim { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes flash { 0% { opacity: 0.8; background: white; } 100% { opacity: 0; } }
+        .flash-anim { animation: flash 0.3s ease-out; }
+
+        ::-webkit-scrollbar { width: 16px; background: #dfdfdf; }
+        ::-webkit-scrollbar-thumb { background: #c0c0c0; border: 2px solid #dfdfdf; border-top-color: #fff; border-left-color: #fff; border-right-color: #000; border-bottom-color: #000; }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.bottom-10{bottom:2.5rem}.left-1{left:0.25rem}.top-0{top:0px}.z-10{z-index:10}.z-50{z-index:50}.z-\[100\]{z-index:100}.z-\[120\]{z-index:120}.z-\[200\]{z-index:200}.z-\[60\]{z-index:60}.z-0{z-index:0}.mx-1{margin-left:0.25rem;margin-right:0.25rem}.mx-2{margin-left:0.5rem;margin-right:0.5rem}.my-1{margin-top:0.25rem;margin-bottom:0.25rem}.mb-1{margin-bottom:0.25rem}.mb-4{margin-bottom:1rem}.mr-2{margin-right:0.5rem}.mb-2{margin-bottom:0.5rem}.ml-auto{margin-left:auto}.mt-4{margin-top:1rem}.box-border{box-sizing:border-box}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-12{height:3rem}.h-2{height:0.5rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-7{height:1.75rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-\[1px\]{height:1px}.h-\[500px\]{height:500px}.h-full{height:100%}.h-screen{height:100vh}.w-16{width:4rem}.w-2{width:0.5rem}.w-4{width:1rem}.w-40{width:10rem}.w-5{width:1.25rem}.w-52{width:13rem}.w-8{width:2rem}.w-80{width:20rem}.w-96{width:24rem}.w-\[2px\]{width:2px}.w-\[600px\]{width:600px}.w-auto{width:auto}.w-full{width:100%}.w-screen{width:100vw}.min-w-\[110px\]{min-width:110px}.min-w-0{min-width:0px}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.-rotate-90{--tw-rotate:-90deg;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes bounce{0%, 100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(0.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,0.2,1)}}.animate-\[bounce_0\.1s_ease-out\]{animation:bounce 0.1s ease-out}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.resize-none{resize:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.content-start{align-content:flex-start}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-nowrap{white-space:nowrap}.rounded-full{border-radius:9999px}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-l{border-left-width:1px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-t-2{border-top-width:2px}.border-black\/20{border-color:rgb(0 0 0 / 0.2)}.border-blue-600{--tw-border-opacity:1;border-color:rgb(37 99 235 / var(--tw-border-opacity, 1))}.border-gray-300{--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.border-gray-400{--tw-border-opacity:1;border-color:rgb(156 163 175 / var(--tw-border-opacity, 1))}.border-gray-500{--tw-border-opacity:1;border-color:rgb(107 114 128 / var(--tw-border-opacity, 1))}.border-white{--tw-border-opacity:1;border-color:rgb(255 255 255 / var(--tw-border-opacity, 1))}.border-black{--tw-border-opacity:1;border-color:rgb(0 0 0 / var(--tw-border-opacity, 1))}.bg-\[\#c0c0c0\]{--tw-bg-opacity:1;background-color:rgb(192 192 192 / var(--tw-bg-opacity, 1))}.bg-\[\#d4d0c8\]{--tw-bg-opacity:1;background-color:rgb(212 208 200 / var(--tw-bg-opacity, 1))}.bg-black\/40{background-color:rgb(0 0 0 / 0.4)}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.bg-gray-200{--tw-bg-opacity:1;background-color:rgb(229 231 235 / var(--tw-bg-opacity, 1))}.bg-gray-300{--tw-bg-opacity:1;background-color:rgb(209 213 219 / var(--tw-bg-opacity, 1))}.bg-gray-400{--tw-bg-opacity:1;background-color:rgb(156 163 175 / var(--tw-bg-opacity, 1))}.bg-green-500{--tw-bg-opacity:1;background-color:rgb(34 197 94 / var(--tw-bg-opacity, 1))}.bg-red-200{--tw-bg-opacity:1;background-color:rgb(254 202 202 / var(--tw-bg-opacity, 1))}.bg-red-700{--tw-bg-opacity:1;background-color:rgb(185 28 28 / var(--tw-bg-opacity, 1))}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-red-600{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}.from-\[\#000080\]{--tw-gradient-from:#000080 var(--tw-gradient-from-position);--tw-gradient-to:rgb(0 0 128 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-\[\#1084d0\]{--tw-gradient-to:#1084d0 var(--tw-gradient-to-position)}.fill-yellow-500{fill:#eab308}.p-0{padding:0px}.p-1{padding:0.25rem}.p-2{padding:0.5rem}.p-4{padding:1rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-4{padding-bottom:1rem}.pl-8{padding-left:2rem}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.font-sans{font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}.text-\[10px\]{font-size:10px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.italic{font-style:italic}.leading-5{line-height:1.25rem}.leading-none{line-height:1}.tracking-widest{letter-spacing:0.1em}.text-\[\#000080\]{--tw-text-opacity:1;color:rgb(0 0 128 / var(--tw-text-opacity, 1))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-yellow-500{--tw-text-opacity:1;color:rgb(234 179 8 / var(--tw-text-opacity, 1))}.text-yellow-600{--tw-text-opacity:1;color:rgb(202 138 4 / var(--tw-text-opacity, 1))}.text-black{--tw-text-opacity:1;color:rgb(0 0 0 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.opacity-30{opacity:0.3}.opacity-50{opacity:0.5}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.backdrop-blur-\[1px\]{--tw-backdrop-blur:blur(1px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.hover\:bg-\[\#000080\]:hover{--tw-bg-opacity:1;background-color:rgb(0 0 128 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-200:hover{--tw-bg-opacity:1;background-color:rgb(191 219 254 / var(--tw-bg-opacity, 1))}.hover\:bg-red-200:hover{--tw-bg-opacity:1;background-color:rgb(254 202 202 / var(--tw-bg-opacity, 1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:text-red-300:hover{--tw-text-opacity:1;color:rgb(252 165 165 / var(--tw-text-opacity, 1))}.hover\:text-yellow-200:hover{--tw-text-opacity:1;color:rgb(254 240 138 / var(--tw-text-opacity, 1))}.active\:bg-\[\#e0e0e0\]:active{--tw-bg-opacity:1;background-color:rgb(224 224 224 / var(--tw-bg-opacity, 1))}.group:hover .group-hover\:text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}@media (min-width: 640px){.sm\:block{display:block}.sm\:w-60{width:15rem}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:p-2{padding:0.5rem}}@media (min-width: 1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}}@media (min-width: 1280px){.xl\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}}</style></head>
+<body class="flex flex-col h-screen w-screen p-1 sm:p-2 gap-1 box-border overflow-hidden">
+
+    <div class="flex-1 flex flex-col win-window overflow-hidden relative z-10 shadow-2xl">
+        <div class="win-titlebar h-8 shrink-0">
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layout-grid" class="lucide lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg>
+                <span class="text-sm" id="uiTitle">PixelNav Station</span>
+            </div>
+            <div class="flex gap-1">
+                <button class="win-btn w-5 h-5 text-[10px] font-bold p-0 leading-none">_</button>
+                <button class="win-btn w-5 h-5 text-[10px] font-bold p-0 leading-none">□</button>
+                <button class="win-btn w-5 h-5 text-[10px] font-bold bg-red-200 p-0 leading-none">×</button>
+            </div>
+        </div>
+
+        <div class="bg-[#c0c0c0] px-2 py-1 border-b border-gray-400 flex items-center gap-4 text-sm shrink-0 select-none" id="uiMenuBar"><a href="/" target="_blank" class="underline hover:bg-[#000080] hover:text-white px-1 cursor-pointer">首页</a><a href="https://github.com" target="_blank" class="underline hover:bg-[#000080] hover:text-white px-1 cursor-pointer">关于</a><span class="underline hover:bg-[#000080] hover:text-white px-1 cursor-pointer">HODL</span></div>
+
+        <div class="bg-[#c0c0c0] p-2 border-b border-white flex items-center gap-2 shrink-0 h-12">
+            <span class="text-xs text-gray-600 hidden sm:block">Address:</span>
+            <div class="win-inset bg-white h-7 flex-1 flex items-center px-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" class="lucide lucide-globe text-gray-400 mr-2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+                <input type="text" id="searchInput" class="w-full h-full outline-none text-sm bg-transparent font-sans" placeholder="Search dApps...">
+            </div>
+            <div class="w-[2px] h-6 bg-gray-400 mx-2 border-r border-white"></div>
+            
+            <div id="adminTools" class="flex gap-2">
+                <button onclick="exportHTML()" class="win-btn px-2 h-7 gap-1 text-xs font-bold" title="保存并下载"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="save" class="lucide lucide-save text-blue-800"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg></button>
+                <button onclick="openSettings()" class="win-btn px-2 h-7 gap-1 text-xs" title="设置"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" class="lucide lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                <button onclick="openImportModal()" class="win-btn px-2 h-7 gap-1 text-xs" title="批量导入"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="list-plus" class="lucide lucide-list-plus"><path d="M16 5H3"></path><path d="M11 12H3"></path><path d="M16 19H3"></path><path d="M18 9v6"></path><path d="M21 12h-6"></path></svg></button>
+                <div class="w-[2px] h-6 bg-gray-400 mx-1 border-r border-white"></div>
+                <button onclick="openModal('CAT')" class="win-btn px-2 h-7 gap-1 text-xs" title="新建/管理分类"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder-plus" class="lucide lucide-folder-plus"><path d="M12 10v6"></path><path d="M9 13h6"></path><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></button>
+                <button onclick="openModal('LINK')" class="win-btn px-2 h-7 gap-1 text-xs" title="新建链接"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="link" class="lucide lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></button>
+            </div>
+        </div>
+
+        <div class="flex-1 flex overflow-hidden p-1 gap-1 bg-[#c0c0c0]">
+            <!-- 左侧分类树 -->
+            <div class="w-40 sm:w-60 win-inset bg-white flex flex-col overflow-y-auto shrink-0 select-none">
+                <div id="categoryList" class="flex flex-col py-1"><div class="sidebar-root select-none "><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder" class="lucide lucide-folder shrink-0 fill-yellow-500 text-yellow-600"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg><span class="flex-1 truncate">Web3常用</span>
+                    <div class="ml-auto flex gap-1 z-10 group-btns" onclick="event.stopPropagation()">
+                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('g-web3', event)">✎</button>
+                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('g-web3', event)">×</button>
+                    </div></div><div class="sidebar-root select-none "><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder" class="lucide lucide-folder shrink-0 fill-yellow-500 text-yellow-600"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg><span class="flex-1 truncate">交易平台</span>
+                    <div class="ml-auto flex gap-1 z-10 group-btns" onclick="event.stopPropagation()">
+                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('g-1764994079003', event)">✎</button>
+                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('g-1764994079003', event)">×</button>
+                    </div></div><div class="sidebar-root select-none "><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder" class="lucide lucide-folder shrink-0 fill-yellow-500 text-yellow-600"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg><span class="flex-1 truncate">行情数据</span>
+                    <div class="ml-auto flex gap-1 z-10 group-btns" onclick="event.stopPropagation()">
+                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('g-1764994098239', event)">✎</button>
+                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('g-1764994098239', event)">×</button>
+                    </div></div><div class="sidebar-root select-none "><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder" class="lucide lucide-folder shrink-0 fill-yellow-500 text-yellow-600"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg><span class="flex-1 truncate">BRC-20</span>
+                    <div class="ml-auto flex gap-1 z-10 group-btns" onclick="event.stopPropagation()">
+                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('g-1764994137818', event)">✎</button>
+                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('g-1764994137818', event)">×</button>
+                    </div></div><div class="sidebar-root select-none "><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder" class="lucide lucide-folder shrink-0 fill-yellow-500 text-yellow-600"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg><span class="flex-1 truncate">Web3钱包</span>
+                    <div class="ml-auto flex gap-1 z-10 group-btns" onclick="event.stopPropagation()">
+                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('g-1764994161344', event)">✎</button>
+                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('g-1764994161344', event)">×</button>
+                    </div></div><div class="sidebar-root select-none "><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder" class="lucide lucide-folder shrink-0 fill-yellow-500 text-yellow-600"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg><span class="flex-1 truncate">区块浏览器</span>
+                    <div class="ml-auto flex gap-1 z-10 group-btns" onclick="event.stopPropagation()">
+                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('g-1764994177974', event)">✎</button>
+                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('g-1764994177974', event)">×</button>
+                    </div></div><div class="sidebar-root select-none "><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder" class="lucide lucide-folder shrink-0 fill-yellow-500 text-yellow-600"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg><span class="flex-1 truncate">跨链桥</span>
+                    <div class="ml-auto flex gap-1 z-10 group-btns" onclick="event.stopPropagation()">
+                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('g-1764994197967', event)">✎</button>
+                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('g-1764994197967', event)">×</button>
+                    </div></div><div class="sidebar-root select-none bg-gray-200"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder-open" class="lucide lucide-folder-open shrink-0 fill-yellow-500 text-yellow-600"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg><span class="flex-1 truncate">Ai工具</span>
+                    <div class="ml-auto flex gap-1 z-10 group-btns" onclick="event.stopPropagation()">
+                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('g-1764994328290', event)">✎</button>
+                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('g-1764994328290', event)">×</button>
+                    </div></div><div><div class="pl-8 py-1 text-gray-500 text-xs italic">无子分类</div></div></div>
+            </div>
+
+            <!-- 右侧网格 -->
+            <div class="flex-1 win-inset bg-white overflow-y-auto relative flex flex-col">
+                <div class="bg-gray-100 border-b border-gray-300 p-2 flex justify-between items-center sticky top-0 z-10 shrink-0 h-10 shadow-sm">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder-open" class="lucide lucide-folder-open text-yellow-500 fill-yellow-500"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg>
+                        <h2 id="currentCatName" class="font-bold text-sm truncate text-[#000080]">Ai工具 (请选择子分类)</h2>
+                    </div>
+                    <span id="itemCount" class="text-xs text-gray-500 border border-gray-300 px-2 py-0.5 bg-white rounded-full">0</span>
+                </div>
+                
+                <div id="linkGrid" class="p-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 content-start"></div>
+
+                <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="ghost" class="lucide lucide-ghost mb-4 opacity-30"><path d="M9 10h.01"></path><path d="M15 10h.01"></path><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"></path></svg>
+                    <p class="text-sm">此文件夹为空</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="h-7 bg-[#c0c0c0] border-t border-gray-400 flex items-center px-2 gap-2 text-xs shrink-0">
+            <div class="win-inset px-2 py-0.5 flex-1 truncate flex items-center gap-2" id="statusMsg">
+                <div class="w-2 h-2 rounded-full bg-green-500"></div> 
+                <span id="uptimeDisplay">系统已运行: 1070天4时12分15秒</span>
+            </div>
+            <div class="win-inset px-2 py-0.5 w-auto min-w-[110px] text-center font-mono whitespace-nowrap" id="clock">12/06 12:12:15</div>
+        </div>
+    </div>
+
+    <!-- 底部任务栏 -->
+    <div class="h-9 bg-[#c0c0c0] border-t-2 border-white flex items-center px-1 shrink-0 z-50 relative">
+        <button id="startBtn" class="win-btn px-2 h-7 font-bold italic flex items-center gap-1">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Windows_logo_and_wordmark_-_1995-2001.svg/100px-Windows_logo_and_wordmark_-_1995-2001.svg.png" width="16">
+            Start
+        </button>
+        <div class="w-[2px] h-6 border-l border-gray-400 border-r border-white mx-1"></div>
+        <div class="win-inset bg-[#d4d0c8] px-2 h-7 flex items-center gap-2 border border-black/20 w-40 active:bg-[#e0e0e0]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+            <span class="text-xs truncate font-bold">PixelNav</span>
+        </div>
+    </div>
+
+    <!-- Start 菜单 -->
+    <div id="startMenu" class="fixed bottom-10 left-1 w-52 win-window z-[60] flex shadow-2xl hidden">
+        <div class="w-8 bg-gradient-to-b from-[#000080] to-[#1084d0] text-white relative flex items-center justify-center">
+            <span class="block -rotate-90 font-bold tracking-widest whitespace-nowrap text-lg">WINDOWS</span>
+        </div>
+        <div class="flex-1 flex flex-col p-1 gap-1">
+            <div class="bg-gray-200 p-2 border border-gray-400 mb-1 flex items-center gap-3">
+                <div class="w-8 h-8 bg-gray-300 rounded-full border border-gray-500 flex items-center justify-center overflow-hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user" class="lucide lucide-user text-gray-600"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <span class="font-bold text-sm" id="userLabel">管理员</span>
+            </div>
+            <button id="authBtn" class="hover:bg-[#000080] hover:text-white px-2 py-3 text-left text-sm flex items-center gap-3 group">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="key" class="lucide lucide-key group-hover:text-white"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"></path><path d="m21 2-9.6 9.6"></path><circle cx="7.5" cy="15.5" r="5.5"></circle></svg> 
+                <span id="authText">退出登录</span>
+            </button>
+            <div class="h-[1px] bg-gray-400 border-b border-white my-1 mx-1"></div>
+            <button onclick="triggerWeb3Egg()" class="hover:bg-[#000080] hover:text-white px-2 py-3 text-left text-sm flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="power" class="lucide lucide-power"><path d="M12 2v10"></path><path d="M18.4 6.6a9 9 0 1 1-12.77.04"></path></svg> <span>关闭系统...</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 统一确认弹窗 -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center backdrop-blur-[1px] hidden">
+        <div class="win-window w-80 shadow-2xl animate-[bounce_0.1s_ease-out]">
+            <div class="win-titlebar bg-red-700">
+                <span>Confirmation</span>
+                <button onclick="closeConfirm()" class="win-btn w-4 h-4 p-0 leading-none text-[10px]">×</button>
+            </div>
+            <div class="p-4 bg-[#c0c0c0] flex gap-4">
+                <div class="shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-triangle" class="lucide lucide-alert-triangle text-yellow-600"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg></div>
+                <div class="flex-1">
+                    <p id="confirmText" class="text-sm mb-4 font-bold">确定删除此文件夹吗？</p>
+                    <div class="flex justify-end gap-2">
+                        <button id="confirmYesBtn" class="win-btn px-4 h-7 font-bold w-16">Yes</button>
+                        <button onclick="closeConfirm()" class="win-btn px-4 h-7 w-16">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Web3 彩蛋 -->
+    <div id="web3Modal" class="hidden fixed inset-0 bg-black/40 z-[200] flex items-center justify-center">
+        <div class="win-window w-96 shadow-2xl shake-anim">
+            <div class="win-titlebar bg-red-700">
+                <span>System Error</span>
+                <button onclick="closeWeb3()" class="win-btn w-4 h-4 p-0 leading-none text-[10px]">×</button>
+            </div>
+            <div class="p-4 bg-[#c0c0c0] flex gap-4 items-center">
+                <div class="shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="octagon-x" class="lucide lucide-octagon-x text-red-600"><path d="m15 9-6 6"></path><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"></path><path d="m9 9 6 6"></path></svg></div>
+                <div class="flex-1">
+                    <p class="font-bold text-lg mb-1">Web3 永不关闭！</p>
+                    <p class="text-xs text-gray-600">Smart Contract Execution Failed.</p>
+                </div>
+            </div>
+            <div class="p-2 bg-[#c0c0c0] flex justify-center gap-4 pb-4">
+                <button onclick="closeWeb3()" class="win-btn px-6 h-8 font-bold">HODL</button>
+                <button onclick="closeWeb3()" class="win-btn px-6 h-8">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量导入 -->
+    <div id="importModal" class="hidden fixed inset-0 bg-black/40 z-[120] flex items-center justify-center">
+        <div class="win-window w-[600px] h-[500px] shadow-2xl flex flex-col">
+            <div class="win-titlebar shrink-0"><span>批量导入向导</span><button onclick="closeImportModal()" class="win-btn w-4 h-4 p-0 leading-none text-[10px]">×</button></div>
+            <div class="flex-1 flex flex-col p-2 gap-2 bg-[#c0c0c0]">
+                <div class="bg-blue-100 border border-blue-600 p-2 text-xs leading-5"><strong>格式：</strong>名称 | 网址 | 描述(可选)</div>
+                <div class="flex items-center gap-2 text-xs">导入到：<strong id="importTargetCat" class="text-blue-800">...</strong></div>
+                <textarea id="importTextarea" class="flex-1 w-full win-inset font-mono text-sm p-2 outline-none resize-none" placeholder="在此粘贴..."></textarea>
+                <div class="flex justify-end gap-2 shrink-0"><button onclick="executeBatchImport()" class="win-btn px-4 h-8 font-bold">导入</button><button onclick="closeImportModal()" class="win-btn px-4 h-8">取消</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通用模态框 -->
+    <div id="modalOverlay" class="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center backdrop-blur-[1px] hidden">
+        <div class="win-window w-96 shadow-2xl animate-[bounce_0.1s_ease-out]">
+            <div class="win-titlebar"><span id="modalTitle">新建分类</span><button onclick="closeModal()" class="win-btn w-4 h-4 p-0 leading-none text-[10px]">×</button></div>
+            <div class="p-4 bg-[#c0c0c0]" id="modalContent"><div class="space-y-2 text-sm"><div class="mb-2"><label>所属大类:</label><select id="catParent" class="w-full border border-gray-400 p-1"><option value="root">-- 新建一级大类 --</option><option value="g-web3">Web3常用</option><option value="g-1764994079003">交易平台</option><option value="g-1764994098239">行情数据</option><option value="g-1764994137818">BRC-20</option><option value="g-1764994161344">Web3钱包</option><option value="g-1764994177974">区块浏览器</option><option value="g-1764994197967" selected="">跨链桥</option></select></div><div><label>分类名称:</label><input id="catInput" value="" class="w-full border border-gray-400 p-1"></div></div><div class="flex justify-end gap-2 mt-4"><button onclick="saveCategory()" class="win-btn px-4 font-bold h-8">保存</button><button onclick="closeModal()" class="win-btn px-4 h-8">取消</button></div></div>
+        </div>
+    </div>
+
+    <div id="flashLayer" class="fixed inset-0 pointer-events-none z-[200]"></div>
+
+    <script>
+        const ADMIN_HASH_SHA256 = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+        const state = { isAdmin: false, data: { config: {}, groups: [] }, activeGroupId: null, activeSubId: null, searchQuery: "", editingId: null, editingType: null };
+
+        async function init() {
+            const stored = localStorage.getItem('pixelnav_data_v15_final');
+            let loadedData = null;
+            if (stored) { try { loadedData = JSON.parse(stored); } catch(e) {} }
+            if (!loadedData) {
+                const raw = JSON.parse(document.getElementById('nav-data').textContent);
+                loadedData = raw.groups ? raw : { config: { windowTitle: "PixelNav Station", startTime: new Date().toISOString() }, groups: [] }; 
+            }
+            state.data = loadedData;
+            state.expandedGroups = new Set(); 
+
+            applyConfig();
+            if (state.data.groups.length > 0) {
+                const firstG = state.data.groups[0];
+                state.expandedGroups.add(firstG.id);
+                state.activeGroupId = firstG.id;
+                if(firstG.subs && firstG.subs.length > 0) state.activeSubId = firstG.subs[0].id;
+            }
+            
+            renderAll();
+            setInterval(() => { updateClock(); updateUptime(); }, 1000);
+            updateClock();
+            updateUptime();
+            lucide.createIcons();
+        }
+
+        // --- 核心渲染 ---
+        function renderSidebar() {
+            const list = document.getElementById('categoryList'); list.innerHTML = '';
+            state.data.groups.forEach(group => {
+                const groupDiv = document.createElement('div');
+                const isExpanded = state.expandedGroups.has(group.id);
+                
+                // 修复重点：给按钮容器添加 onclick="event.stopPropagation()" 防止冒泡到父级
+                let groupBtns = state.isAdmin ? `
+                    <div class="ml-auto flex gap-1 z-10 group-btns" onclick="event.stopPropagation()">
+                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('${group.id}', event)">✎</button>
+                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('${group.id}', event)">×</button>
+                    </div>` : '';
+
+                groupDiv.className = `sidebar-root select-none ${state.activeGroupId === group.id ? 'bg-gray-200' : ''}`;
+                groupDiv.innerHTML = `<i data-lucide="${isExpanded ? 'folder-open' : 'folder'}" width="16" class="shrink-0 fill-yellow-500 text-yellow-600"></i><span class="flex-1 truncate">${group.name}</span>${groupBtns}`;
+                groupDiv.onclick = () => toggleGroup(group.id);
+                list.appendChild(groupDiv);
+
+                if (isExpanded) {
+                    const subContainer = document.createElement('div');
+                    if (!group.subs || group.subs.length === 0) {
+                        subContainer.innerHTML = `<div class="pl-8 py-1 text-gray-500 text-xs italic">无子分类</div>`;
+                    } else {
+                        group.subs.forEach(sub => {
+                            const subDiv = document.createElement('div');
+                            const isActive = sub.id === state.activeSubId;
+                            // 修复重点：给子按钮容器也加防护
+                            let subBtns = state.isAdmin ? `
+                                <div class="ml-auto flex gap-1 z-10 sub-btns" onclick="event.stopPropagation()">
+                                    <button class="text-white hover:text-yellow-200 px-1 font-bold" onclick="editSub('${group.id}', '${sub.id}', event)">✎</button>
+                                    <button class="text-white hover:text-red-300 px-1 font-bold" onclick="deleteSub('${group.id}', '${sub.id}', event)">×</button>
+                                </div>` : '';
+                            subDiv.className = `sidebar-sub text-sm truncate ${isActive ? 'active' : ''}`;
+                            subDiv.innerHTML = `<i data-lucide="corner-down-right" width="12" class="shrink-0 opacity-50 icon-svg"></i><span class="flex-1 truncate">${sub.name}</span>${subBtns}`;
+                            subDiv.onclick = (e) => { e.stopPropagation(); selectSub(group.id, sub.id); };
+                            subContainer.appendChild(subDiv);
+                        });
+                    }
+                    list.appendChild(subContainer);
+                }
+            });
+        }
+
+        function renderMainContent() {
+            const grid = document.getElementById('linkGrid'); const empty = document.getElementById('emptyState'); const titleEl = document.getElementById('currentCatName');
+            grid.innerHTML = '';
+            const group = state.data.groups.find(g => g.id === state.activeGroupId);
+            const sub = group ? group.subs.find(s => s.id === state.activeSubId) : null;
+
+            if (!sub) {
+                titleEl.innerText = group ? `${group.name} (请选择子分类)` : "未选择";
+                document.getElementById('itemCount').innerText = "0";
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            titleEl.innerText = `${group.name} / ${sub.name}`;
+            let links = sub.links || [];
+            if (state.searchQuery) links = links.filter(l => l.title.toLowerCase().includes(state.searchQuery.toLowerCase()));
+            document.getElementById('itemCount').innerText = links.length;
+            empty.classList.toggle('hidden', links.length > 0);
+
+            links.forEach(link => {
+                const item = document.createElement('div'); item.className = "grid-item group";
+                let iconDisplay = `<i data-lucide="globe" width="20" class="text-blue-800"></i>`;
+                if (link.icon) iconDisplay = link.icon.startsWith('http') ? `<img src="${link.icon}" class="w-5 h-5 object-cover" onerror="this.style.display='none'">` : `<span class="text-lg leading-none">${link.icon}</span>`;
+                
+                let safeUrl = link.url; if (safeUrl && !/^https?:|mailto:|#/.test(safeUrl)) safeUrl = 'https://' + safeUrl;
+                const linkLayer = `<a href="${safeUrl}" target="_blank" class="card-link" title="${link.url}"></a>`;
+                
+                // 修复重点：给卡片按钮层加防护，防止穿透到下层的<a>标签
+                let btnsHtml = state.isAdmin ? `
+                    <div class="action-layer" onclick="event.stopPropagation(); event.preventDefault();">
+                        <button class="w-5 h-5 bg-blue-600 text-white flex items-center justify-center text-xs border border-black shadow-sm" onclick="editLink('${link.id}', event)">✎</button>
+                        <button class="w-5 h-5 bg-red-600 text-white flex items-center justify-center text-xs border border-black shadow-sm" onclick="deleteLink('${link.id}', event)">×</button>
+                    </div>` : '';
+                
+                item.innerHTML = `${linkLayer}<div class="w-8 h-8 flex items-center justify-center bg-gray-100 border border-gray-400 shrink-0 shadow-sm overflow-hidden pointer-events-none relative z-0">${iconDisplay}</div><div class="flex-1 min-w-0 pointer-events-none relative z-0"><div class="font-bold text-sm truncate text-black">${link.title}</div><div class="text-xs text-gray-500 truncate">${link.desc || link.url}</div></div>${btnsHtml}`;
+                grid.appendChild(item);
+            });
+        }
+
+        // --- 确认弹窗逻辑 ---
+        function showConfirm(msg, callback) {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confirmText').innerText = msg;
+            modal.classList.remove('hidden');
+            const yesBtn = document.getElementById('confirmYesBtn');
+            yesBtn.onclick = () => { callback(); closeConfirm(); };
+            lucide.createIcons();
+        }
+        function closeConfirm() { document.getElementById('confirmModal').classList.add('hidden'); }
+
+        // --- 核心 CRUD ---
+        function deleteGroup(id, e) {
+            if(e) { e.stopPropagation(); e.preventDefault(); }
+            showConfirm("⚠️ 警告：删除一级分类会清空所有内容！", () => {
+                state.data.groups = state.data.groups.filter(g => g.id !== id);
+                if(state.activeGroupId === id) { state.activeGroupId = null; state.activeSubId = null; }
+                saveData();
+            });
+        }
+        
+        function deleteSub(gid, sid, e) {
+            if(e) { e.stopPropagation(); e.preventDefault(); }
+            showConfirm("确定删除此文件夹吗？", () => {
+                const g = state.data.groups.find(g=>g.id===gid);
+                if(g) {
+                    g.subs = g.subs.filter(s=>s.id!==sid);
+                    if(state.activeSubId === sid) state.activeSubId = null;
+                    saveData();
+                }
+            });
+        }
+
+        function deleteLink(id, e) {
+            if(e) { e.stopPropagation(); e.preventDefault(); }
+            showConfirm("确定删除此链接吗？", () => {
+                for(let g of state.data.groups) for(let s of g.subs) s.links = s.links.filter(l=>l.id!==id);
+                saveData();
+            });
+        }
+
+        function toggleGroup(gid) { if(state.expandedGroups.has(gid)) state.expandedGroups.delete(gid); else state.expandedGroups.add(gid); state.activeGroupId = gid; renderSidebar(); lucide.createIcons(); }
+        function selectSub(gid, sid) { state.activeGroupId = gid; state.activeSubId = sid; renderAll(); }
+        function editGroup(id, e) { if(e) e.stopPropagation(); state.editingId = id; state.editingType = 'GROUP'; openModal('CAT'); }
+        function editSub(gid, sid, e) { if(e) e.stopPropagation(); state.editingId = sid; state.editingType = 'SUB'; openModal('CAT'); }
+        function editLink(id, e) { if(e) e.stopPropagation(); for(let g of state.data.groups) for(let s of g.subs) { const l = s.links.find(lnk=>lnk.id===id); if(l) { state.editingId = id; openModal('LINK', l); return; } } }
+
+        function saveCategory() {
+            const name = document.getElementById('catInput').value.trim();
+            if (!name) return showMessage("名称必填");
+            let parentId = null;
+            if (!state.editingId) { const parentEl = document.getElementById('catParent'); parentId = parentEl ? parentEl.value : null; }
+
+            if (state.editingId) {
+                if (state.editingType === 'GROUP') {
+                    const g = state.data.groups.find(g => g.id === state.editingId); if(g) g.name = name;
+                } else {
+                    for(let g of state.data.groups) { const s = g.subs.find(sub => sub.id === state.editingId); if(s) { s.name = name; break; } }
+                }
+            } else {
+                if (parentId === 'root') {
+                    const newG = { id: 'g-'+Date.now(), name, subs: [] };
+                    state.data.groups.push(newG);
+                    state.expandedGroups.add(newG.id);
+                    state.activeGroupId = newG.id;
+                } else {
+                    const g = state.data.groups.find(g => g.id === parentId);
+                    if(g) {
+                        const newS = { id: 's-'+Date.now(), name, links: [] };
+                        g.subs.push(newS);
+                        state.expandedGroups.add(g.id);
+                        state.activeGroupId = g.id;
+                        state.activeSubId = newS.id;
+                    }
+                }
+            }
+            saveData(); closeModal();
+        }
+
+        function saveLink() {
+            if(!state.activeSubId) return showMessage("请先选择一个二级分类");
+            const title = document.getElementById('lTitle').value.trim();
+            let url = document.getElementById('lUrl').value.trim();
+            const desc = document.getElementById('lDesc').value.trim();
+            const icon = document.getElementById('lIcon').value.trim();
+            if (!title) return showMessage("标题必填");
+            if (url && !/^https?:|mailto:|#/.test(url)) url = 'https://' + url;
+
+            let targetSub = null;
+            for(let g of state.data.groups) { const s = g.subs.find(sub => sub.id === state.activeSubId); if(s) { targetSub = s; break; } }
+
+            if(targetSub) {
+                if (state.editingId) {
+                    const l = targetSub.links.find(lnk => lnk.id === state.editingId);
+                    if(l) Object.assign(l, { title, url, desc, icon });
+                } else {
+                    targetSub.links.push({ id: 'l-'+Date.now(), title, url, desc, icon });
+                }
+                saveData(); closeModal();
+            }
+        }
+
+        // --- 杂项 ---
+        function showMessage(msg) { alert(msg); }
+        function updateClock() { const now = new Date(); document.getElementById('clock').innerText = `${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`; }
+        function updateUptime() {
+            const start = new Date(state.data.config.startTime || new Date());
+            const diff = new Date() - start;
+            if (diff < 0) return;
+            const d = Math.floor(diff/86400000);
+            const h = Math.floor((diff/3600000)%24);
+            const m = Math.floor((diff/60000)%60);
+            const s = Math.floor((diff/1000)%60);
+            document.getElementById('uptimeDisplay').innerText = `${state.data.config.statusPrefix||'运行'}: ${d}天${h}时${m}分${s}秒`;
+        }
+        async function sha256(m) { const b = new TextEncoder().encode(m); const h = await crypto.subtle.digest('SHA-256', b); return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+        function saveData() { localStorage.setItem('pixelnav_data_v15_final', JSON.stringify(state.data)); renderAll(); }
+        function applyConfig() { 
+            const conf = state.data.config || {}; 
+            if(conf.windowTitle) { document.title = conf.windowTitle; document.getElementById('uiTitle').innerText = conf.windowTitle; }
+            if(conf.searchPlaceholder) document.getElementById('searchInput').placeholder = conf.searchPlaceholder;
+            if(conf.menus) {
+                document.getElementById('uiMenuBar').innerHTML = conf.menus.map(m => {
+                    const [txt, link] = m.split('|');
+                    return link ? `<a href="${link}" target="_blank" class="underline hover:bg-[#000080] hover:text-white px-1 cursor-pointer">${txt}</a>` : `<span class="underline hover:bg-[#000080] hover:text-white px-1 cursor-pointer">${txt}</span>`;
+                }).join('');
+            }
+        }
+        function renderAll() { renderSidebar(); renderMainContent(); updateUIState(); lucide.createIcons(); }
+        function updateUIState() { document.getElementById('adminTools').classList.toggle('hidden', !state.isAdmin); document.getElementById('userLabel').innerText = state.isAdmin ? "管理员" : "访客"; document.getElementById('authText').innerText = state.isAdmin ? "退出登录" : "管理员登录"; }
+        function executeBatchImport() {
+            const raw = document.getElementById('importTextarea').value;
+            if (!raw.trim() || !state.activeSubId) return showMessage("请先选择一个二级分类！");
+            let targetSub = null;
+            for(let g of state.data.groups) { const s = g.subs.find(sub => sub.id === state.activeSubId); if(s) { targetSub = s; break; } }
+            if(!targetSub) return;
+            const lines = raw.split('\n');
+            let count = 0;
+            lines.forEach(line => {
+                const parts = line.split(/[|｜]/).map(s=>s.trim());
+                if(parts.length >= 2) {
+                    let url = parts[1]; if(!/^https?:/.test(url)) url = 'https://'+url;
+                    targetSub.links.push({ id: 'l-'+Date.now()+Math.random(), title: parts[0], url, desc: parts[2]||"", icon: "" });
+                    count++;
+                }
+            });
+            if(count>0) { saveData(); closeImportModal(); showMessage(`导入 ${count} 条`); }
+        }
+        function exportHTML() { const a=document.createElement('a'); const html=document.documentElement.outerHTML.replace(/(<script id="nav-data" type="application\/json">)([\s\S]*?)(<\/script>)/, `$1\n${JSON.stringify(state.data,null,4)}\n$3`); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download="index.html"; a.click(); }
+        function triggerWeb3Egg() { document.getElementById('startMenu').classList.add('hidden'); document.getElementById('web3Modal').classList.remove('hidden'); const w=document.querySelector('#web3Modal .win-window'); w.classList.remove('shake-anim'); void w.offsetWidth; w.classList.add('shake-anim'); lucide.createIcons(); }
+        function closeWeb3() { document.getElementById('web3Modal').classList.add('hidden'); }
+        function openSettings() { openModal('SETTINGS'); }
+        function saveSettings() {
+            state.data.config = {
+                windowTitle: document.getElementById('cfgTitle').value,
+                menus: document.getElementById('cfgMenus').value.split(',').map(s=>s.trim()),
+                searchPlaceholder: document.getElementById('cfgSearch').value,
+                statusPrefix: document.getElementById('cfgPrefix').value,
+                startTime: document.getElementById('cfgTime').value
+            };
+            saveData(); applyConfig(); closeModal();
+        }
+        function openImportModal() { openModal('IMPORT_PLACEHOLDER'); document.getElementById('importModal').classList.remove('hidden'); }
+        function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); }
+
+        function openModal(type, data=null) {
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            const content = document.getElementById('modalContent');
+            const title = document.getElementById('modalTitle');
+            if(type !== 'LINK' && type !== 'CAT') state.editingId = null; 
+
+            if(type === 'LOGIN') {
+                title.innerText = "管理员认证";
+                content.innerHTML = `<div class="text-sm mb-2">请输入管理员密码:</div><input type="password" id="pInput" class="w-full border-2 border-gray-400 p-1 mb-4 font-sans" onkeydown="if(event.key==='Enter') doLogin()"><div class="flex justify-end gap-2"><button onclick="doLogin()" class="win-btn px-4 font-bold h-8">确定</button><button onclick="closeModal()" class="win-btn px-4 h-8">取消</button></div>`;
+                setTimeout(()=>document.getElementById('pInput').focus(), 50);
+            }
+            else if(type === 'CAT') {
+                title.innerText = state.editingId ? "修改分类" : "新建分类";
+                let options = `<option value="root">-- 新建一级大类 --</option>`;
+                state.data.groups.forEach(g => { options += `<option value="${g.id}" ${state.activeGroupId===g.id ? 'selected':''}>${g.name}</option>`; });
+                let parentSelect = state.editingId ? '' : `<div class="mb-2"><label>所属大类:</label><select id="catParent" class="w-full border border-gray-400 p-1">${options}</select></div>`;
+                let currentName = '';
+                if(state.editingId) {
+                    if(state.editingType==='GROUP') { const g = state.data.groups.find(x=>x.id===state.editingId); if(g) currentName = g.name; }
+                    else { for(let g of state.data.groups) { const s = g.subs.find(x=>x.id===state.editingId); if(s) { currentName = s.name; break; } } }
+                }
+                content.innerHTML = `<div class="space-y-2 text-sm">${parentSelect}<div><label>分类名称:</label><input id="catInput" value="${currentName}" class="w-full border border-gray-400 p-1"></div></div><div class="flex justify-end gap-2 mt-4"><button onclick="saveCategory()" class="win-btn px-4 font-bold h-8">保存</button><button onclick="closeModal()" class="win-btn px-4 h-8">取消</button></div>`;
+            }
+            else if(type === 'LINK') {
+                title.innerText = state.editingId ? "修改链接" : "新建链接";
+                const d = data || {title:'', url:'', desc:'', icon:''};
+                content.innerHTML = `<div class="space-y-2 text-sm"><div><label>标题:</label><input id="lTitle" value="${d.title}" class="w-full border border-gray-400 p-1"></div><div><label>网址:</label><input id="lUrl" value="${d.url}" class="w-full border border-gray-400 p-1"></div><div><label>描述:</label><input id="lDesc" value="${d.desc}" class="w-full border border-gray-400 p-1"></div><div><label>图标:</label><input id="lIcon" value="${d.icon}" class="w-full border border-gray-400 p-1"></div></div><div class="flex justify-end gap-2 mt-4"><button onclick="saveLink()" class="win-btn px-4 font-bold h-8">保存</button><button onclick="closeModal()" class="win-btn px-4 h-8">取消</button></div>`;
+            }
+            else if(type === 'SETTINGS') {
+                const conf = state.data.config;
+                title.innerText = "全局设置";
+                content.innerHTML = `<div class="space-y-2 text-sm"><div><label>窗口标题:</label><input id="cfgTitle" value="${conf.windowTitle}" class="w-full border border-gray-400 p-1"></div><div><label>菜单 (格式: 名称|链接):</label><input id="cfgMenus" value="${(conf.menus||[]).join(',')}" class="w-full border border-gray-400 p-1"></div><div><label>搜索提示:</label><input id="cfgSearch" value="${conf.searchPlaceholder}" class="w-full border border-gray-400 p-1"></div><div><label>状态栏前缀:</label><input id="cfgPrefix" value="${conf.statusPrefix}" class="w-full border border-gray-400 p-1"></div><div><label>起始时间:</label><input type="datetime-local" id="cfgTime" value="${(conf.startTime||'').slice(0,16)}" class="w-full border border-gray-400 p-1"></div></div><div class="flex justify-end gap-2 mt-4"><button onclick="saveSettings()" class="win-btn px-4 font-bold h-8">保存</button><button onclick="closeModal()" class="win-btn px-4 h-8">取消</button></div>`;
+            }
+        }
+        
+        function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
+        async function doLogin() { const h = await sha256(document.getElementById('pInput').value); if(h===ADMIN_HASH_SHA256) { state.isAdmin=true; updateUIState(); closeModal(); } else showMessage("密码错误"); }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => { state.searchQuery=e.target.value; renderMainContent(); });
+        document.getElementById('startBtn').onclick = (e) => { e.stopPropagation(); document.getElementById('startMenu').classList.toggle('hidden'); };
+        document.getElementById('authBtn').onclick = () => { document.getElementById('startMenu').classList.add('hidden'); if(state.isAdmin){state.isAdmin=false;updateUIState();} else openModal('LOGIN'); };
+        document.body.onclick = (e) => { if(!e.target.closest('#startMenu')&&!e.target.closest('#startBtn')) document.getElementById('startMenu').classList.add('hidden'); };
+
+        init();
+    </script>
+
+
+
+</body></html>
