@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- 默认数据：两级结构 -->
     <script id="nav-data" type="application/json">
     {
         "config": {
@@ -19,35 +18,15 @@
         },
         "groups": [
             {
-                "id": "group-web3",
+                "id": "g-web3",
                 "name": "Web3 世界",
                 "subs": [
                     {
-                        "id": "sub-tools",
+                        "id": "s-tools",
                         "name": "基础工具",
                         "links": [
-                            { "id": "l1", "title": "Etherscan", "url": "https://etherscan.io", "desc": "区块链浏览器", "icon": "🔍" },
+                            { "id": "l1", "title": "Etherscan", "url": "https://etherscan.io", "desc": "区块浏览器", "icon": "🔍" },
                             { "id": "l2", "title": "Metamask", "url": "https://metamask.io", "desc": "小狐狸钱包", "icon": "🦊" }
-                        ]
-                    },
-                    {
-                        "id": "sub-defi",
-                        "name": "DeFi 金融",
-                        "links": [
-                            { "id": "l3", "title": "Uniswap", "url": "https://uniswap.org", "desc": "去中心化交易", "icon": "🦄" }
-                        ]
-                    }
-                ]
-            },
-            {
-                "id": "group-daily",
-                "name": "日常摸鱼",
-                "subs": [
-                    {
-                        "id": "sub-video",
-                        "name": "视频娱乐",
-                        "links": [
-                            { "id": "l4", "title": "Bilibili", "url": "https://bilibili.com", "desc": "干杯", "icon": "📺" }
                         ]
                     }
                 ]
@@ -63,30 +42,36 @@
         .win-window { background: var(--win-gray); box-shadow: 1px 1px 0 #000; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #000; border-bottom: 2px solid #000; }
         .win-inset { background: #fff; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #dfdfdf; border-bottom: 1px solid #dfdfdf; }
         .win-titlebar { background: linear-gradient(90deg, var(--win-blue), #1084d0); color: white; padding: 3px 6px; display: flex; align-items: center; justify-content: space-between; font-weight: bold; }
+        
         .win-btn { background: var(--win-gray); border: 1px solid #808080; border-top-color: #fff; border-left-color: #fff; border-right-color: #000; border-bottom-color: #000; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: black; box-shadow: 1px 1px 0 #000; }
         .win-btn:active:not(:disabled) { border-top-color: #000; border-left-color: #000; border-right-color: #fff; border-bottom-color: #fff; transform: translate(1px, 1px); box-shadow: none; }
         
-        /* 侧边栏样式升级 */
-        .sidebar-root { padding: 6px 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #333; }
+        .sidebar-root { padding: 8px 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #333; position: relative; }
         .sidebar-root:hover { background-color: #e0e0e0; }
-        .sidebar-sub { padding: 4px 4px 4px 24px; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px dotted transparent; }
+        .sidebar-sub { padding: 6px 4px 6px 24px; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px dotted transparent; position: relative; }
         .sidebar-sub:hover { border-color: #808080; }
         .sidebar-sub.active { background-color: var(--win-blue); color: white; border-color: white; }
         .sidebar-sub.active .icon-svg { stroke: white; }
         
+        /* 按钮组显隐 */
+        .sidebar-root .group-btns, .sidebar-sub .sub-btns { display: none; }
+        .sidebar-root:hover .group-btns, .sidebar-sub:hover .sub-btns { display: flex; }
+
         .grid-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid transparent; transition: background 0.1s; }
         .grid-item:hover { background-color: #efefef; border: 1px dotted #808080; }
-        .card-link { position: absolute; inset: 0; z-index: 1; }
         
+        /* 关键层级：链接底层(1)，按钮顶层(50) */
+        .card-link { position: absolute; inset: 0; z-index: 1; }
+        .action-layer { position: absolute; top: 4px; right: 4px; z-index: 50; display: none; gap: 4px; }
+        .grid-item:hover .action-layer { display: flex; }
+
         @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
         .shake-anim { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes flash { 0% { opacity: 0.8; background: white; } 100% { opacity: 0; } }
+        .flash-anim { animation: flash 0.3s ease-out; }
 
         ::-webkit-scrollbar { width: 16px; background: #dfdfdf; }
         ::-webkit-scrollbar-thumb { background: #c0c0c0; border: 2px solid #dfdfdf; border-top-color: #fff; border-left-color: #fff; border-right-color: #000; border-bottom-color: #000; }
-        ::-webkit-scrollbar-button { background: #c0c0c0; width: 16px; height: 16px; border: 2px outset #fff; display: block; }
-        
-        @keyframes flash { 0% { opacity: 0.8; background: white; } 100% { opacity: 0; } }
-        .flash-anim { animation: flash 0.3s ease-out; }
     </style>
 </head>
 <body class="flex flex-col h-screen w-screen p-1 sm:p-2 gap-1 box-border overflow-hidden">
@@ -154,11 +139,11 @@
                 <div class="w-2 h-2 rounded-full bg-green-500"></div> 
                 <span id="uptimeDisplay">系统初始化中...</span>
             </div>
-            <!-- 时间格式优化：MM/DD HH:MM:SS，不换行 -->
             <div class="win-inset px-2 py-0.5 w-auto min-w-[110px] text-center font-mono whitespace-nowrap" id="clock">--/-- --:--:--</div>
         </div>
     </div>
 
+    <!-- 底部任务栏 -->
     <div class="h-9 bg-[#c0c0c0] border-t-2 border-white flex items-center px-1 shrink-0 z-50 relative">
         <button id="startBtn" class="win-btn px-2 h-7 font-bold italic flex items-center gap-1">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Windows_logo_and_wordmark_-_1995-2001.svg/100px-Windows_logo_and_wordmark_-_1995-2001.svg.png" width="16">
@@ -171,6 +156,7 @@
         </div>
     </div>
 
+    <!-- Start 菜单 -->
     <div id="startMenu" class="hidden fixed bottom-10 left-1 w-52 win-window z-[60] flex shadow-2xl">
         <div class="w-8 bg-gradient-to-b from-[#000080] to-[#1084d0] text-white relative flex items-center justify-center">
             <span class="block -rotate-90 font-bold tracking-widest whitespace-nowrap text-lg">WINDOWS</span>
@@ -190,6 +176,26 @@
             <button onclick="triggerWeb3Egg()" class="hover:bg-[#000080] hover:text-white px-2 py-3 text-left text-sm flex items-center gap-3">
                 <i data-lucide="power" width="16"></i> <span>关闭系统...</span>
             </button>
+        </div>
+    </div>
+
+    <!-- 统一确认弹窗 -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/40 z-[200] flex items-center justify-center backdrop-blur-[1px]">
+        <div class="win-window w-80 shadow-2xl animate-[bounce_0.1s_ease-out]">
+            <div class="win-titlebar bg-red-700">
+                <span>Confirmation</span>
+                <button onclick="closeConfirm()" class="win-btn w-4 h-4 p-0 leading-none text-[10px]">×</button>
+            </div>
+            <div class="p-4 bg-[#c0c0c0] flex gap-4">
+                <div class="shrink-0"><i data-lucide="alert-triangle" width="32" class="text-yellow-600"></i></div>
+                <div class="flex-1">
+                    <p id="confirmText" class="text-sm mb-4 font-bold">Are you sure?</p>
+                    <div class="flex justify-end gap-2">
+                        <button id="confirmYesBtn" class="win-btn px-4 h-7 font-bold w-16">Yes</button>
+                        <button onclick="closeConfirm()" class="win-btn px-4 h-7 w-16">No</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -214,17 +220,12 @@
         </div>
     </div>
 
-    <!-- 批量导入模态框 -->
+    <!-- 批量导入 -->
     <div id="importModal" class="hidden fixed inset-0 bg-black/40 z-[120] flex items-center justify-center">
         <div class="win-window w-[600px] h-[500px] shadow-2xl flex flex-col">
-            <div class="win-titlebar shrink-0">
-                <span>批量导入向导</span>
-                <button onclick="closeImportModal()" class="win-btn w-4 h-4 p-0 leading-none text-[10px]">×</button>
-            </div>
+            <div class="win-titlebar shrink-0"><span>批量导入向导</span><button onclick="closeImportModal()" class="win-btn w-4 h-4 p-0 leading-none text-[10px]">×</button></div>
             <div class="flex-1 flex flex-col p-2 gap-2 bg-[#c0c0c0]">
-                <div class="bg-blue-100 border border-blue-600 p-2 text-xs leading-5">
-                    <strong>格式：</strong>名称 | 网址 | 描述(可选)
-                </div>
+                <div class="bg-blue-100 border border-blue-600 p-2 text-xs leading-5"><strong>格式：</strong>名称 | 网址 | 描述(可选)</div>
                 <div class="flex items-center gap-2 text-xs">导入到：<strong id="importTargetCat" class="text-blue-800">...</strong></div>
                 <textarea id="importTextarea" class="flex-1 w-full win-inset font-mono text-sm p-2 outline-none resize-none" placeholder="在此粘贴..."></textarea>
                 <div class="flex justify-end gap-2 shrink-0"><button onclick="executeBatchImport()" class="win-btn px-4 h-8 font-bold">导入</button><button onclick="closeImportModal()" class="win-btn px-4 h-8">取消</button></div>
@@ -235,10 +236,7 @@
     <!-- 通用模态框 -->
     <div id="modalOverlay" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-center justify-center backdrop-blur-[1px]">
         <div class="win-window w-96 shadow-2xl animate-[bounce_0.1s_ease-out]">
-            <div class="win-titlebar">
-                <span id="modalTitle">System</span>
-                <button onclick="closeModal()" class="win-btn w-4 h-4 p-0 leading-none text-[10px]">×</button>
-            </div>
+            <div class="win-titlebar"><span id="modalTitle">System</span><button onclick="closeModal()" class="win-btn w-4 h-4 p-0 leading-none text-[10px]">×</button></div>
             <div class="p-4 bg-[#c0c0c0]" id="modalContent"></div>
         </div>
     </div>
@@ -250,27 +248,22 @@
         const state = { isAdmin: false, data: { config: {}, groups: [] }, activeGroupId: null, activeSubId: null, searchQuery: "", editingId: null, editingType: null };
 
         async function init() {
-            const stored = localStorage.getItem('pixelnav_data_v11_tree');
+            const stored = localStorage.getItem('pixelnav_data_v15_final');
             let loadedData = null;
             if (stored) { try { loadedData = JSON.parse(stored); } catch(e) {} }
-            
             if (!loadedData) {
                 const raw = JSON.parse(document.getElementById('nav-data').textContent);
                 loadedData = raw.groups ? raw : { config: { windowTitle: "PixelNav Station", startTime: new Date().toISOString() }, groups: [] }; 
             }
             state.data = loadedData;
-            state.expandedGroups = new Set(); // 追踪展开的一级菜单
+            state.expandedGroups = new Set(); 
 
             applyConfig();
-            
-            // 自动展开并选中第一个
             if (state.data.groups.length > 0) {
                 const firstG = state.data.groups[0];
                 state.expandedGroups.add(firstG.id);
                 state.activeGroupId = firstG.id;
-                if(firstG.subs && firstG.subs.length > 0) {
-                    state.activeSubId = firstG.subs[0].id;
-                }
+                if(firstG.subs && firstG.subs.length > 0) state.activeSubId = firstG.subs[0].id;
             }
             
             renderAll();
@@ -280,32 +273,25 @@
             lucide.createIcons();
         }
 
-        // --- 核心渲染：树状侧边栏 ---
+        // --- 核心渲染 ---
         function renderSidebar() {
-            const list = document.getElementById('categoryList'); 
-            list.innerHTML = '';
-            
+            const list = document.getElementById('categoryList'); list.innerHTML = '';
             state.data.groups.forEach(group => {
-                // 1. 渲染一级大类 (Group)
                 const groupDiv = document.createElement('div');
                 const isExpanded = state.expandedGroups.has(group.id);
                 
+                // 修复重点：给按钮容器添加 onclick="event.stopPropagation()" 防止冒泡到父级
                 let groupBtns = state.isAdmin ? `
-                    <div class="ml-auto flex gap-1 z-10" onclick="event.stopPropagation()">
-                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('${group.id}')" title="修改大类">✎</button>
-                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('${group.id}')" title="删除大类">×</button>
+                    <div class="ml-auto flex gap-1 z-10 group-btns" onclick="event.stopPropagation()">
+                        <button class="text-blue-600 hover:bg-blue-200 px-1 font-bold" onclick="editGroup('${group.id}', event)">✎</button>
+                        <button class="text-red-600 hover:bg-red-200 px-1 font-bold" onclick="deleteGroup('${group.id}', event)">×</button>
                     </div>` : '';
 
                 groupDiv.className = `sidebar-root select-none ${state.activeGroupId === group.id ? 'bg-gray-200' : ''}`;
-                groupDiv.innerHTML = `
-                    <i data-lucide="${isExpanded ? 'folder-open' : 'folder'}" width="16" class="shrink-0 fill-yellow-500 text-yellow-600"></i>
-                    <span class="flex-1 truncate">${group.name}</span>
-                    ${groupBtns}
-                `;
+                groupDiv.innerHTML = `<i data-lucide="${isExpanded ? 'folder-open' : 'folder'}" width="16" class="shrink-0 fill-yellow-500 text-yellow-600"></i><span class="flex-1 truncate">${group.name}</span>${groupBtns}`;
                 groupDiv.onclick = () => toggleGroup(group.id);
                 list.appendChild(groupDiv);
 
-                // 2. 渲染二级子类 (Sub)
                 if (isExpanded) {
                     const subContainer = document.createElement('div');
                     if (!group.subs || group.subs.length === 0) {
@@ -314,19 +300,14 @@
                         group.subs.forEach(sub => {
                             const subDiv = document.createElement('div');
                             const isActive = sub.id === state.activeSubId;
-                            
+                            // 修复重点：给子按钮容器也加防护
                             let subBtns = state.isAdmin ? `
-                                <div class="ml-auto flex gap-1 z-10" onclick="event.stopPropagation()">
-                                    <button class="text-white hover:text-yellow-200 px-1 font-bold" onclick="editSub('${group.id}', '${sub.id}')">✎</button>
-                                    <button class="text-white hover:text-red-300 px-1 font-bold" onclick="deleteSub('${group.id}', '${sub.id}')">×</button>
+                                <div class="ml-auto flex gap-1 z-10 sub-btns" onclick="event.stopPropagation()">
+                                    <button class="text-white hover:text-yellow-200 px-1 font-bold" onclick="editSub('${group.id}', '${sub.id}', event)">✎</button>
+                                    <button class="text-white hover:text-red-300 px-1 font-bold" onclick="deleteSub('${group.id}', '${sub.id}', event)">×</button>
                                 </div>` : '';
-
                             subDiv.className = `sidebar-sub text-sm truncate ${isActive ? 'active' : ''}`;
-                            subDiv.innerHTML = `
-                                <i data-lucide="corner-down-right" width="12" class="shrink-0 opacity-50 icon-svg"></i>
-                                <span class="flex-1 truncate">${sub.name}</span>
-                                ${isActive ? subBtns : ''} 
-                            `;
+                            subDiv.innerHTML = `<i data-lucide="corner-down-right" width="12" class="shrink-0 opacity-50 icon-svg"></i><span class="flex-1 truncate">${sub.name}</span>${subBtns}`;
                             subDiv.onclick = (e) => { e.stopPropagation(); selectSub(group.id, sub.id); };
                             subContainer.appendChild(subDiv);
                         });
@@ -336,26 +317,9 @@
             });
         }
 
-        function toggleGroup(gid) {
-            if(state.expandedGroups.has(gid)) state.expandedGroups.delete(gid);
-            else state.expandedGroups.add(gid);
-            state.activeGroupId = gid;
-            renderSidebar();
-            lucide.createIcons();
-        }
-
-        function selectSub(gid, sid) {
-            state.activeGroupId = gid;
-            state.activeSubId = sid;
-            renderAll();
-        }
-
         function renderMainContent() {
-            const grid = document.getElementById('linkGrid'); 
-            const empty = document.getElementById('emptyState');
-            const titleEl = document.getElementById('currentCatName');
+            const grid = document.getElementById('linkGrid'); const empty = document.getElementById('emptyState'); const titleEl = document.getElementById('currentCatName');
             grid.innerHTML = '';
-
             const group = state.data.groups.find(g => g.id === state.activeGroupId);
             const sub = group ? group.subs.find(s => s.id === state.activeSubId) : null;
 
@@ -376,44 +340,88 @@
                 const item = document.createElement('div'); item.className = "grid-item group";
                 let iconDisplay = `<i data-lucide="globe" width="20" class="text-blue-800"></i>`;
                 if (link.icon) iconDisplay = link.icon.startsWith('http') ? `<img src="${link.icon}" class="w-5 h-5 object-cover" onerror="this.style.display='none'">` : `<span class="text-lg leading-none">${link.icon}</span>`;
-                let safeUrl = link.url; if (safeUrl && !/^https?:|mailto:|#/.test(safeUrl)) safeUrl = 'https://' + safeUrl;
                 
+                let safeUrl = link.url; if (safeUrl && !/^https?:|mailto:|#/.test(safeUrl)) safeUrl = 'https://' + safeUrl;
                 const linkLayer = `<a href="${safeUrl}" target="_blank" class="card-link" title="${link.url}"></a>`;
-                let btnsHtml = state.isAdmin ? `<div class="absolute top-1 right-1 hidden group-hover:flex gap-1 z-20"><button class="w-5 h-5 bg-blue-600 text-white flex items-center justify-center text-xs border border-black shadow-sm" onclick="editLink('${link.id}')">✎</button><button class="w-5 h-5 bg-red-600 text-white flex items-center justify-center text-xs border border-black shadow-sm" onclick="deleteLink('${link.id}')">×</button></div>` : '';
+                
+                // 修复重点：给卡片按钮层加防护，防止穿透到下层的<a>标签
+                let btnsHtml = state.isAdmin ? `
+                    <div class="action-layer" onclick="event.stopPropagation(); event.preventDefault();">
+                        <button class="w-5 h-5 bg-blue-600 text-white flex items-center justify-center text-xs border border-black shadow-sm" onclick="editLink('${link.id}', event)">✎</button>
+                        <button class="w-5 h-5 bg-red-600 text-white flex items-center justify-center text-xs border border-black shadow-sm" onclick="deleteLink('${link.id}', event)">×</button>
+                    </div>` : '';
                 
                 item.innerHTML = `${linkLayer}<div class="w-8 h-8 flex items-center justify-center bg-gray-100 border border-gray-400 shrink-0 shadow-sm overflow-hidden pointer-events-none relative z-0">${iconDisplay}</div><div class="flex-1 min-w-0 pointer-events-none relative z-0"><div class="font-bold text-sm truncate text-black">${link.title}</div><div class="text-xs text-gray-500 truncate">${link.desc || link.url}</div></div>${btnsHtml}`;
                 grid.appendChild(item);
             });
         }
 
-        // --- 数据操作 (双层) ---
+        // --- 确认弹窗逻辑 ---
+        function showConfirm(msg, callback) {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confirmText').innerText = msg;
+            modal.classList.remove('hidden');
+            const yesBtn = document.getElementById('confirmYesBtn');
+            yesBtn.onclick = () => { callback(); closeConfirm(); };
+            lucide.createIcons();
+        }
+        function closeConfirm() { document.getElementById('confirmModal').classList.add('hidden'); }
+
+        // --- 核心 CRUD ---
+        function deleteGroup(id, e) {
+            if(e) { e.stopPropagation(); e.preventDefault(); }
+            showConfirm("⚠️ 警告：删除一级分类会清空所有内容！", () => {
+                state.data.groups = state.data.groups.filter(g => g.id !== id);
+                if(state.activeGroupId === id) { state.activeGroupId = null; state.activeSubId = null; }
+                saveData();
+            });
+        }
+        
+        function deleteSub(gid, sid, e) {
+            if(e) { e.stopPropagation(); e.preventDefault(); }
+            showConfirm("确定删除此文件夹吗？", () => {
+                const g = state.data.groups.find(g=>g.id===gid);
+                if(g) {
+                    g.subs = g.subs.filter(s=>s.id!==sid);
+                    if(state.activeSubId === sid) state.activeSubId = null;
+                    saveData();
+                }
+            });
+        }
+
+        function deleteLink(id, e) {
+            if(e) { e.stopPropagation(); e.preventDefault(); }
+            showConfirm("确定删除此链接吗？", () => {
+                for(let g of state.data.groups) for(let s of g.subs) s.links = s.links.filter(l=>l.id!==id);
+                saveData();
+            });
+        }
+
+        function toggleGroup(gid) { if(state.expandedGroups.has(gid)) state.expandedGroups.delete(gid); else state.expandedGroups.add(gid); state.activeGroupId = gid; renderSidebar(); lucide.createIcons(); }
+        function selectSub(gid, sid) { state.activeGroupId = gid; state.activeSubId = sid; renderAll(); }
+        function editGroup(id, e) { if(e) e.stopPropagation(); state.editingId = id; state.editingType = 'GROUP'; openModal('CAT'); }
+        function editSub(gid, sid, e) { if(e) e.stopPropagation(); state.editingId = sid; state.editingType = 'SUB'; openModal('CAT'); }
+        function editLink(id, e) { if(e) e.stopPropagation(); for(let g of state.data.groups) for(let s of g.subs) { const l = s.links.find(lnk=>lnk.id===id); if(l) { state.editingId = id; openModal('LINK', l); return; } } }
+
         function saveCategory() {
             const name = document.getElementById('catInput').value.trim();
-            const parentId = document.getElementById('catParent').value; // "root" 或 groupID
-            if (!name) return;
+            if (!name) return showMessage("名称必填");
+            let parentId = null;
+            if (!state.editingId) { const parentEl = document.getElementById('catParent'); parentId = parentEl ? parentEl.value : null; }
 
             if (state.editingId) {
-                // 修改模式
                 if (state.editingType === 'GROUP') {
-                    const g = state.data.groups.find(g => g.id === state.editingId);
-                    if(g) g.name = name;
+                    const g = state.data.groups.find(g => g.id === state.editingId); if(g) g.name = name;
                 } else {
-                    // 修改子类：需遍历查找
-                    for(let g of state.data.groups) {
-                        const s = g.subs.find(sub => sub.id === state.editingId);
-                        if(s) { s.name = name; break; }
-                    }
+                    for(let g of state.data.groups) { const s = g.subs.find(sub => sub.id === state.editingId); if(s) { s.name = name; break; } }
                 }
             } else {
-                // 新增模式
                 if (parentId === 'root') {
-                    // 新建一级
                     const newG = { id: 'g-'+Date.now(), name, subs: [] };
                     state.data.groups.push(newG);
                     state.expandedGroups.add(newG.id);
                     state.activeGroupId = newG.id;
                 } else {
-                    // 新建二级
                     const g = state.data.groups.find(g => g.id === parentId);
                     if(g) {
                         const newS = { id: 's-'+Date.now(), name, links: [] };
@@ -428,21 +436,16 @@
         }
 
         function saveLink() {
-            // ... (同之前版本，只是需要定位到正确的 sub)
-            if(!state.activeSubId) return alert("请先选择一个二级分类");
+            if(!state.activeSubId) return showMessage("请先选择一个二级分类");
             const title = document.getElementById('lTitle').value.trim();
             let url = document.getElementById('lUrl').value.trim();
             const desc = document.getElementById('lDesc').value.trim();
             const icon = document.getElementById('lIcon').value.trim();
-            if (!title) return alert("标题必填");
+            if (!title) return showMessage("标题必填");
             if (url && !/^https?:|mailto:|#/.test(url)) url = 'https://' + url;
 
-            // 查找当前 sub
             let targetSub = null;
-            for(let g of state.data.groups) {
-                const s = g.subs.find(sub => sub.id === state.activeSubId);
-                if(s) { targetSub = s; break; }
-            }
+            for(let g of state.data.groups) { const s = g.subs.find(sub => sub.id === state.activeSubId); if(s) { targetSub = s; break; } }
 
             if(targetSub) {
                 if (state.editingId) {
@@ -455,13 +458,9 @@
             }
         }
 
-        // --- 辅助函数 ---
-        function updateClock() {
-            const now = new Date();
-            // MM/DD HH:MM:SS
-            const str = `${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-            document.getElementById('clock').innerText = str;
-        }
+        // --- 杂项 ---
+        function showMessage(msg) { alert(msg); }
+        function updateClock() { const now = new Date(); document.getElementById('clock').innerText = `${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`; }
         function updateUptime() {
             const start = new Date(state.data.config.startTime || new Date());
             const diff = new Date() - start;
@@ -473,7 +472,7 @@
             document.getElementById('uptimeDisplay').innerText = `${state.data.config.statusPrefix||'运行'}: ${d}天${h}时${m}分${s}秒`;
         }
         async function sha256(m) { const b = new TextEncoder().encode(m); const h = await crypto.subtle.digest('SHA-256', b); return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-        function saveData() { localStorage.setItem('pixelnav_data_v11_tree', JSON.stringify(state.data)); renderAll(); }
+        function saveData() { localStorage.setItem('pixelnav_data_v15_final', JSON.stringify(state.data)); renderAll(); }
         function applyConfig() { 
             const conf = state.data.config || {}; 
             if(conf.windowTitle) { document.title = conf.windowTitle; document.getElementById('uiTitle').innerText = conf.windowTitle; }
@@ -486,56 +485,42 @@
             }
         }
         function renderAll() { renderSidebar(); renderMainContent(); updateUIState(); lucide.createIcons(); }
-        function updateUIState() { 
-            document.getElementById('adminTools').classList.toggle('hidden', !state.isAdmin); 
-            document.getElementById('userLabel').innerText = state.isAdmin ? "管理员" : "访客"; 
-            document.getElementById('authText').innerText = state.isAdmin ? "退出登录" : "管理员登录"; 
-        }
-
-        // --- 批量导入 ---
+        function updateUIState() { document.getElementById('adminTools').classList.toggle('hidden', !state.isAdmin); document.getElementById('userLabel').innerText = state.isAdmin ? "管理员" : "访客"; document.getElementById('authText').innerText = state.isAdmin ? "退出登录" : "管理员登录"; }
         function executeBatchImport() {
             const raw = document.getElementById('importTextarea').value;
-            if (!raw.trim() || !state.activeSubId) return alert("请先选择一个二级分类！");
-            
+            if (!raw.trim() || !state.activeSubId) return showMessage("请先选择一个二级分类！");
             let targetSub = null;
-            for(let g of state.data.groups) {
-                const s = g.subs.find(sub => sub.id === state.activeSubId);
-                if(s) { targetSub = s; break; }
-            }
+            for(let g of state.data.groups) { const s = g.subs.find(sub => sub.id === state.activeSubId); if(s) { targetSub = s; break; } }
             if(!targetSub) return;
-
             const lines = raw.split('\n');
             let count = 0;
             lines.forEach(line => {
                 const parts = line.split(/[|｜]/).map(s=>s.trim());
                 if(parts.length >= 2) {
-                    let url = parts[1];
-                    if(!/^https?:/.test(url)) url = 'https://'+url;
+                    let url = parts[1]; if(!/^https?:/.test(url)) url = 'https://'+url;
                     targetSub.links.push({ id: 'l-'+Date.now()+Math.random(), title: parts[0], url, desc: parts[2]||"", icon: "" });
                     count++;
                 }
             });
-            if(count>0) { saveData(); closeImportModal(); alert(`导入 ${count} 条`); }
+            if(count>0) { saveData(); closeImportModal(); showMessage(`导入 ${count} 条`); }
         }
+        function exportHTML() { const a=document.createElement('a'); const html=document.documentElement.outerHTML.replace(/(<script id="nav-data" type="application\/json">)([\s\S]*?)(<\/script>)/, `$1\n${JSON.stringify(state.data,null,4)}\n$3`); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download="index.html"; a.click(); }
+        function triggerWeb3Egg() { document.getElementById('startMenu').classList.add('hidden'); document.getElementById('web3Modal').classList.remove('hidden'); const w=document.querySelector('#web3Modal .win-window'); w.classList.remove('shake-anim'); void w.offsetWidth; w.classList.add('shake-anim'); lucide.createIcons(); }
+        function closeWeb3() { document.getElementById('web3Modal').classList.add('hidden'); }
+        function openSettings() { openModal('SETTINGS'); }
+        function saveSettings() {
+            state.data.config = {
+                windowTitle: document.getElementById('cfgTitle').value,
+                menus: document.getElementById('cfgMenus').value.split(',').map(s=>s.trim()),
+                searchPlaceholder: document.getElementById('cfgSearch').value,
+                statusPrefix: document.getElementById('cfgPrefix').value,
+                startTime: document.getElementById('cfgTime').value
+            };
+            saveData(); applyConfig(); closeModal();
+        }
+        function openImportModal() { openModal('IMPORT_PLACEHOLDER'); document.getElementById('importModal').classList.remove('hidden'); }
+        function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); }
 
-        // --- 删除/编辑 触发器 ---
-        function deleteGroup(id) { if(!confirm("删除一级分类会清空其下所有内容，确定吗？")) return; state.data.groups = state.data.groups.filter(g => g.id !== id); saveData(); }
-        function editGroup(id) { state.editingId = id; state.editingType = 'GROUP'; openModal('CAT'); }
-        function deleteSub(gid, sid) { if(!confirm("删除此分类？")) return; const g = state.data.groups.find(g=>g.id===gid); if(g) g.subs = g.subs.filter(s=>s.id!==sid); saveData(); }
-        function editSub(gid, sid) { state.editingId = sid; state.editingType = 'SUB'; openModal('CAT'); }
-        function editLink(id) { state.editingId = id; openModal('LINK', {id}); /*简略处理，实际需查找link对象传参*/ 
-            // 查找link
-            for(let g of state.data.groups) for(let s of g.subs) {
-                const l = s.links.find(lnk=>lnk.id===id);
-                if(l) { openModal('LINK', l); return; }
-            }
-        }
-        function deleteLink(id) { if(!confirm("删除链接？")) return; 
-            for(let g of state.data.groups) for(let s of g.subs) s.links = s.links.filter(l=>l.id!==id);
-            saveData(); 
-        }
-
-        // --- 模态框 ---
         function openModal(type, data=null) {
             document.getElementById('modalOverlay').classList.remove('hidden');
             const content = document.getElementById('modalContent');
@@ -549,29 +534,15 @@
             }
             else if(type === 'CAT') {
                 title.innerText = state.editingId ? "修改分类" : "新建分类";
-                // 构建父级选项
                 let options = `<option value="root">-- 新建一级大类 --</option>`;
-                state.data.groups.forEach(g => {
-                    options += `<option value="${g.id}" ${state.activeGroupId===g.id ? 'selected':''}>${g.name}</option>`;
-                });
-                
-                // 如果是修改，隐藏父级选择（简化逻辑）
+                state.data.groups.forEach(g => { options += `<option value="${g.id}" ${state.activeGroupId===g.id ? 'selected':''}>${g.name}</option>`; });
                 let parentSelect = state.editingId ? '' : `<div class="mb-2"><label>所属大类:</label><select id="catParent" class="w-full border border-gray-400 p-1">${options}</select></div>`;
-                
-                // 查找当前名字回显
                 let currentName = '';
                 if(state.editingId) {
                     if(state.editingType==='GROUP') { const g = state.data.groups.find(x=>x.id===state.editingId); if(g) currentName = g.name; }
                     else { for(let g of state.data.groups) { const s = g.subs.find(x=>x.id===state.editingId); if(s) { currentName = s.name; break; } } }
                 }
-
-                content.innerHTML = `
-                    <div class="space-y-2 text-sm">
-                        ${parentSelect}
-                        <div><label>分类名称:</label><input id="catInput" value="${currentName}" class="w-full border border-gray-400 p-1"></div>
-                    </div>
-                    <div class="flex justify-end gap-2 mt-4"><button onclick="saveCategory()" class="win-btn px-4 font-bold h-8">保存</button><button onclick="closeModal()" class="win-btn px-4 h-8">取消</button></div>
-                `;
+                content.innerHTML = `<div class="space-y-2 text-sm">${parentSelect}<div><label>分类名称:</label><input id="catInput" value="${currentName}" class="w-full border border-gray-400 p-1"></div></div><div class="flex justify-end gap-2 mt-4"><button onclick="saveCategory()" class="win-btn px-4 font-bold h-8">保存</button><button onclick="closeModal()" class="win-btn px-4 h-8">取消</button></div>`;
             }
             else if(type === 'LINK') {
                 title.innerText = state.editingId ? "修改链接" : "新建链接";
@@ -581,37 +552,13 @@
             else if(type === 'SETTINGS') {
                 const conf = state.data.config;
                 title.innerText = "全局设置";
-                content.innerHTML = `<div class="space-y-2 text-sm">
-                    <div><label>窗口标题:</label><input id="cfgTitle" value="${conf.windowTitle}" class="w-full border border-gray-400 p-1"></div>
-                    <div><label>菜单 (名称|链接):</label><input id="cfgMenus" value="${(conf.menus||[]).join(',')}" class="w-full border border-gray-400 p-1"></div>
-                    <div><label>搜索提示:</label><input id="cfgSearch" value="${conf.searchPlaceholder}" class="w-full border border-gray-400 p-1"></div>
-                    <div><label>状态栏前缀:</label><input id="cfgPrefix" value="${conf.statusPrefix}" class="w-full border border-gray-400 p-1"></div>
-                    <div><label>起始时间:</label><input type="datetime-local" id="cfgTime" value="${(conf.startTime||'').slice(0,16)}" class="w-full border border-gray-400 p-1"></div>
-                </div><div class="flex justify-end gap-2 mt-4"><button onclick="saveSettings()" class="win-btn px-4 font-bold h-8">保存</button><button onclick="closeModal()" class="win-btn px-4 h-8">取消</button></div>`;
+                content.innerHTML = `<div class="space-y-2 text-sm"><div><label>窗口标题:</label><input id="cfgTitle" value="${conf.windowTitle}" class="w-full border border-gray-400 p-1"></div><div><label>菜单 (格式: 名称|链接):</label><input id="cfgMenus" value="${(conf.menus||[]).join(',')}" class="w-full border border-gray-400 p-1"></div><div><label>搜索提示:</label><input id="cfgSearch" value="${conf.searchPlaceholder}" class="w-full border border-gray-400 p-1"></div><div><label>状态栏前缀:</label><input id="cfgPrefix" value="${conf.statusPrefix}" class="w-full border border-gray-400 p-1"></div><div><label>起始时间:</label><input type="datetime-local" id="cfgTime" value="${(conf.startTime||'').slice(0,16)}" class="w-full border border-gray-400 p-1"></div></div><div class="flex justify-end gap-2 mt-4"><button onclick="saveSettings()" class="win-btn px-4 font-bold h-8">保存</button><button onclick="closeModal()" class="win-btn px-4 h-8">取消</button></div>`;
             }
         }
         
-        // 杂项函数
         function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
-        async function doLogin() { const h = await sha256(document.getElementById('pInput').value); if(h===ADMIN_HASH_SHA256) { state.isAdmin=true; updateUIState(); closeModal(); } else alert("密码错误"); }
-        function saveSettings() {
-            state.data.config = {
-                windowTitle: document.getElementById('cfgTitle').value,
-                menus: document.getElementById('cfgMenus').value.split(',').map(s=>s.trim()),
-                searchPlaceholder: document.getElementById('cfgSearch').value,
-                statusPrefix: document.getElementById('cfgPrefix').value,
-                startTime: document.getElementById('cfgTime').value
-            };
-            saveData(); applyConfig(); closeModal();
-        }
-        function openSettings() { openModal('SETTINGS'); }
-        function openImportModal() { openModal('IMPORT_PLACEHOLDER'); /* 这里复用之前的导入逻辑，简化略 */ document.getElementById('importModal').classList.remove('hidden'); }
-        function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); }
-        function exportHTML() { const a=document.createElement('a'); const html=document.documentElement.outerHTML.replace(/(<script id="nav-data" type="application\/json">)([\s\S]*?)(<\/script>)/, `$1\n${JSON.stringify(state.data,null,4)}\n$3`); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download="index.html"; a.click(); }
-        function triggerWeb3Egg() { document.getElementById('startMenu').classList.add('hidden'); document.getElementById('web3Modal').classList.remove('hidden'); const w=document.querySelector('#web3Modal .win-window'); w.classList.remove('shake-anim'); void w.offsetWidth; w.classList.add('shake-anim'); lucide.createIcons(); }
-        function closeWeb3() { document.getElementById('web3Modal').classList.add('hidden'); }
+        async function doLogin() { const h = await sha256(document.getElementById('pInput').value); if(h===ADMIN_HASH_SHA256) { state.isAdmin=true; updateUIState(); closeModal(); } else showMessage("密码错误"); }
 
-        // 事件绑定
         document.getElementById('searchInput').addEventListener('input', (e) => { state.searchQuery=e.target.value; renderMainContent(); });
         document.getElementById('startBtn').onclick = (e) => { e.stopPropagation(); document.getElementById('startMenu').classList.toggle('hidden'); };
         document.getElementById('authBtn').onclick = () => { document.getElementById('startMenu').classList.add('hidden'); if(state.isAdmin){state.isAdmin=false;updateUIState();} else openModal('LOGIN'); };
@@ -621,5 +568,4 @@
     </script>
 </body>
 </html>
-
 
